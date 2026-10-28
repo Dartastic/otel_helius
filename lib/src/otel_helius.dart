@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_helius_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_helius';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class HeliusResult {
+  /// Creates a result.
   const HeliusResult({
     this.cluster,
     this.surface,
@@ -96,8 +97,13 @@ class HeliusResult {
   final int? statusCode;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class HeliusCallResult<T> {
+  /// Creates a call result.
   const HeliusCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final HeliusResult? result;
 }
@@ -129,7 +135,7 @@ Future<T> tracedHelius<T>({
   final span = _tracer().startSpan(
     'helius $operation',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
@@ -137,107 +143,109 @@ Future<T> tracedHelius<T>({
       final res = r.result!;
       final extras = <Attribute<Object>>[];
       if (res.cluster != null) {
-        extras.add(OTel.attributeString('helius.cluster', res.cluster!));
+        extras.add(OTelAPI.attributeString('helius.cluster', res.cluster!));
       }
       if (res.surface != null) {
-        extras.add(OTel.attributeString('helius.surface', res.surface!));
+        extras.add(OTelAPI.attributeString('helius.surface', res.surface!));
       }
       if (res.rpcMethod != null) {
-        extras.add(OTel.attributeString('helius.rpc.method', res.rpcMethod!));
+        extras
+            .add(OTelAPI.attributeString('helius.rpc.method', res.rpcMethod!));
       }
       if (res.batchSize != null) {
-        extras.add(OTel.attributeInt('helius.batch.size', res.batchSize!));
+        extras.add(OTelAPI.attributeInt('helius.batch.size', res.batchSize!));
       }
       if (res.creditsUsed != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'helius.credits.used',
           res.creditsUsed!,
         ));
       }
       if (res.responseBytes != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'helius.response.bytes',
           res.responseBytes!,
         ));
       }
       if (res.commitment != null) {
-        extras.add(OTel.attributeString('helius.commitment', res.commitment!));
+        extras
+            .add(OTelAPI.attributeString('helius.commitment', res.commitment!));
       }
       if (res.slot != null) {
-        extras.add(OTel.attributeInt('helius.slot', res.slot!));
+        extras.add(OTelAPI.attributeInt('helius.slot', res.slot!));
       }
       if (res.account != null) {
-        extras.add(OTel.attributeString('helius.account', res.account!));
+        extras.add(OTelAPI.attributeString('helius.account', res.account!));
       }
       if (res.tokenStandard != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'helius.token.standard',
           res.tokenStandard!,
         ));
       }
       if (res.assetCount != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'helius.asset.count',
           res.assetCount!,
         ));
       }
       if (res.collection != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'helius.collection',
           res.collection!,
         ));
       }
       if (res.priorityFeeMicroLamports != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'helius.priority_fee.micro_lamports',
           res.priorityFeeMicroLamports!,
         ));
       }
       if (res.webhookId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'helius.webhook.id',
           res.webhookId!,
         ));
       }
       if (res.webhookKind != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'helius.webhook.kind',
           res.webhookKind!,
         ));
       }
       if (res.lasersAddress != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'helius.lasers.address',
           res.lasersAddress!,
         ));
       }
       if (res.parsedTxKind != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'helius.parsed_tx.kind',
           res.parsedTxKind!,
         ));
       }
       if (res.rateLimitRemaining != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'helius.rate_limit.remaining',
           res.rateLimitRemaining!,
         ));
       }
       if (res.errorCode != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'helius.error.code',
           res.errorCode!,
         ));
         span.setStatus(SpanStatusCode.Error, 'Helius ${res.errorCode}');
       }
       if (res.errorMessage != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'helius.error.message',
           res.errorMessage!,
         ));
       }
       if (res.statusCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'http.response.status_code',
           res.statusCode!,
         ));
@@ -245,13 +253,13 @@ Future<T> tracedHelius<T>({
           span.setStatus(SpanStatusCode.Error, 'Helius HTTP ${res.statusCode}');
         }
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
